@@ -107,7 +107,7 @@ function paint_lane(draw, lanes_class, records){
             let g_block=draw.group().addTo(g_lane);
             g_block.id(`朝代-${record["名称"]}`);
             // var block = draw.rect(chaodai_width, (end - start+1) * year_size).attr({ fill: 'hsl(330, 100%, 100%,0.3)', stroke: 'hsl(330, 100%, 0%)', 'stroke-width': 1 }).addTo(g_block);
-            let block = draw.path(`M0,0 L${chaodai_width},0 M0,0 L0,${(end - start+1) * year_size} M0,${(end - start+1) * year_size} L${chaodai_width},${(end - start+1) * year_size} `).attr({ stroke: 'hsl(330, 100%, 0%)', 'stroke-width': 1 }).addTo(g_block);
+            let block = draw.path(`M0,0 l${chaodai_width},0 l0,${(end - start + 1) * year_size} l-${chaodai_width},0 z`).attr({ fill:'hsl(222, 70%, 70%,0.2)',stroke: 'hsl(222, 100%, 0%)', 'stroke-width': 1 }).addTo(g_block);
             block.record = record;
             block.node.block = block;
             // block.on('mouseover', (event) => {
@@ -137,7 +137,7 @@ function paint_lane(draw, lanes_class, records){
 
             let block_name = record["名称"];
             let text = draw.text(block_name).addTo(g_block);;
-            let text_size = Math.min((block.width() - 10) / block_name.length, 15);
+            let text_size = Math.min((block.width() - 10) / block_name.length, block.bbox().h-2, 15);
             text.size(text_size);
             text.y(2);
             text.cx(block.bbox().w / 2);
@@ -146,10 +146,10 @@ function paint_lane(draw, lanes_class, records){
         }
         lane.width((max_right - lane.x()) + 3);
         lane.height((max_bottom - lane.y()) + 20);
-        let text = draw.text(lane_name).addTo(g_lane);;
+        let text = draw.text(lane_name).addTo(g_lane);
         let text_size = Math.min((lane.width() - 20) / lane_name.length, 20);
         text.size(text_size);
-        text.y( 2);
+        text.y(2);
         text.cx(lane.x() + lane.width() / 2);
     }
     return g_lanes;
@@ -161,8 +161,6 @@ function paint(draw, lanes_class, records){
     let up_space=40;
     g_time_rule.transform({y:up_space});
     g_lanes.transform({x:g_time_rule.rbox().x2+10,y:up_space-40});
-    console.log(g_time_rule.rbox());
-    console.log(g_lanes.rbox());
 
     var all_c = draw.children();
     var bottom = 0;
