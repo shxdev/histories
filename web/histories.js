@@ -68,10 +68,10 @@ function paint_timeRule(draw,records){
         }
     }
     draw.path(line_path).stroke({ width: 1 }).addTo(g_line);
-    return g_time_rule;
+    return {g:g_time_rule,year_range:year_range};
 }
 
-function paint_lane(draw, lanes_class, records){
+function paint_lane(draw, lanes_class, records,year_range){
     var lanes = [];
     let g_lanes=draw.group().id("泳道");
     for (let i = 0; i < lanes_class.length; i++) {
@@ -103,7 +103,7 @@ function paint_lane(draw, lanes_class, records){
         for (let ii = 0; ii < records_chaodai.length; ii++) {
             let record = records_chaodai[ii];
             let start = record["起始年份"];
-            let end = record["结束年份"];
+            let end = record["结束年份"]==="今"?(year_range&&year_range["max"]||2018):record["结束年份"];
             let g_block=draw.group().addTo(g_lane);
             g_block.id(`朝代-${record["名称"]}`);
             // var block = draw.rect(chaodai_width, (end - start+1) * year_size).attr({ fill: 'hsl(330, 100%, 100%,0.3)', stroke: 'hsl(330, 100%, 0%)', 'stroke-width': 1 }).addTo(g_block);
@@ -152,12 +152,20 @@ function paint_lane(draw, lanes_class, records){
         text.y(2);
         text.cx(lane.x() + lane.width() / 2);
     }
+    let right=0;
+    let it=g_lanes.children();
+    for(let i=0;i<it.length;i++){
+        let g_lane=it[i];
+        g_lane.transform({x:right});
+        right+=g_lane.bbox().w;
+    }
     return g_lanes;
 }
 
 function paint(draw, lanes_class, records){
-    let g_time_rule=paint_timeRule(draw,records);
-    let g_lanes=paint_lane(draw, lanes_class, records);
+    let {g,year_range}=paint_timeRule(draw,records);
+    let g_time_rule=g;
+    let g_lanes=paint_lane(draw, lanes_class, records,year_range);
     let up_space=40;
     g_time_rule.transform({y:up_space});
     g_lanes.transform({x:g_time_rule.rbox().x2+10,y:up_space-40});
@@ -175,7 +183,7 @@ function paint(draw, lanes_class, records){
 }
 var draw=undefined;
 var records = [];
-var lanes_class = ['中国'];
+var lanes_class = ['中国','西方'];
 
 document.addEventListener('DOMContentLoaded',(event)=>{
     document.querySelector(".clear").addEventListener("click", (event) => {
