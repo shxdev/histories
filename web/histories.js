@@ -195,9 +195,73 @@ document.addEventListener('DOMContentLoaded',(event)=>{
         draw.clear();
         paint(draw, lanes_class, records);
     });
+
+    document.addEventListener("keydown",(event)=>{
+        const {key,keyCode,shiftKey,ctrlKey,altKey,metaKey}=event;
+        if(key==='r' && metaKey){
+            // 页面刷新
+        }else{
+            event.preventDefault();
+            shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
+        }
+    });
+
     (async ()=>{
         records=await dao.getRecords();
         draw = SVG('drawing').id('历史');
         paint(draw, lanes_class, records);
+        const rbox=draw.rbox();
+        draw_x=rbox.x;
+        draw_y=rbox.y;
+
     })();
 });
+
+
+let md_x=0;md_y=0;draw_x=0;draw_y=0;md=false;m_x=0;m_y=0,s_x=0;s_y=0;moving_g=undefined;
+function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
+    // console.log({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
+    if(key==='a'){
+        const g=draw.group();
+        const w=200;h=100; 
+        const path=draw.path(`M0,0 l${w},0 l0,${h} l-${w},0 Z`).attr({ fill:'hsl(222, 70%, 70%,0.2)',stroke: 'hsl(222, 100%, 0%)', 'stroke-width': 1 }).addTo(g);
+        g.move(300,100);
+        g.node.block=g;
+        g.on("pointerdown",(event)=>{
+            event.currentTarget.setPointerCapture(event.pointerId);
+            moving_g=event.currentTarget.block;
+            const rbox=moving_g.rbox();
+            md_x=rbox.x;
+            md_y=rbox.y;
+            m_x=event.clientX;
+            m_y=event.clientY;
+            md=true;
+            s_x=document.scrollingElement.scrollLeft;
+            s_y=document.scrollingElement.scrollTop;
+        });
+        g.on("pointerup",(event)=>{
+            md=false;
+            moving_g=undefined;
+        });
+        // g.on("pointercancel",(event)=>{
+        //     md=false;
+        //     event.currentTarget.releasePointerCapture(event.pointerId);
+        // });
+        g.on("pointermove",(event)=>{
+            if(md){
+                let x=event.clientX;
+                let y=event.clientY;
+                let scroll_x=document.scrollingElement.scrollLeft;
+                let scroll_y=document.scrollingElement.scrollTop;
+                moving_g.move(md_x-draw_x+x-m_x+scroll_x-s_x,md_y-draw_y+y-m_y+scroll_y-s_y);
+            }
+        });
+    }else if(key==='Escape' && md){
+        md=false;
+        console.log(moving_g);
+        if(moving_g){
+            moving_g.move(md_x-draw_x,md_y-draw_y);
+        }
+
+    }
+}
