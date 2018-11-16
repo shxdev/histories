@@ -17,10 +17,11 @@
   })('Shape', function () {
     const Tools={
         isNumber:function(n){
-            return 
+            const ret=
                 (typeof(n)==="number" && !isNaN(n)) 
                 || (typeof(n)==="string" && /^\d+(\.\d+)?$/.test(n))
             ;
+            return ret;
         }
     };
 
@@ -36,7 +37,9 @@
         this.root = svg.group();
         return this;
     }
-    BaseShape.prototype.box=function(){
+    BaseShape.prototype.move=function(x,y){
+        this.root.move(x,y);
+        return this;
     }
 
     const InteractiveShape=function(){
@@ -120,10 +123,51 @@
         this.w = Tools.isNumber(w) ? w : this.w;
         this.h = Tools.isNumber(h) ? h : this.h;
         const path = this.svg.path(`M0,0 l${this.w},0 l0,${this.h} l-${this.w},0 Z`).attr({ fill: this.bgColor, stroke: this.lineColor, 'stroke-width': this.lineWidth }).addTo(this.root);
-        path.move(this.offset.x,this.offset.y);
+        this.root.move(this.offset.x,this.offset.y);
         this.components.push(path);
         this.keyComponents["main"] = path;
         return this;
     };
+
+    DefaltTemplate.Star = function () {
+        this.w = 400;
+        this.angle = 36;
+        this.offset = { x: 1, y: 1 };
+    };
+    DefaltTemplate.Star.prototype = new InteractiveShape();
+    DefaltTemplate.Star.prototype.draw = function ({ w, angle}) {
+
+        this.w = Tools.isNumber(w) ? w : this.w;
+        this.angle = Tools.isNumber(angle) ? angle : this.angle;
+        console.log(Tools.isNumber(angle), angle, this.angle);
+        const a_r=180-this.angle/2-36;
+        const r=this.w/2;
+        const r2=r / Math.sin(a_r / 180 * Math.PI) * Math.sin(this.angle / 2 / 180 * Math.PI);
+        const point_set=[];
+        for(let angle_index=0;angle_index<5;angle_index++){
+            let angle=-90+angle_index*72;
+            let radians = angle / 180 * Math.PI;
+            let x = Math.cos(radians)*r+r;
+            let y = Math.sin(radians) * r+r;
+            point_set.push({x,y});
+            
+            angle = -54 + angle_index * 72;
+            radians = angle / 180 * Math.PI;
+            x = Math.cos(radians) * r2 + r;
+            y = Math.sin(radians) * r2 + r;
+            point_set.push({ x, y });
+        }
+        let polygon="";
+        for (let i = 0; i < point_set.length;i++){
+            const point = point_set[i];
+            polygon = `${polygon} ${point.x},${point.y}`;
+        }
+        const p = this.svg.polygon(polygon).attr({ fill: this.bgColor, stroke: this.lineColor, 'stroke-width': this.lineWidth }).addTo(this.root);
+        this.root.move(this.offset.x, this.offset.y);
+        this.components.push(p);
+        this.keyComponents["main"] = p;
+        return this;
+    };
+
     return {BaseShape,InteractiveShape,DefaltTemplate};
 });

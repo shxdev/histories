@@ -218,7 +218,8 @@ let g=undefined;
 function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
     // console.log({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
     if(key==='a'){
-        g=(new Shape.DefaltTemplate.Rectangle()).init({svg:draw}).draw({});
+        g = (new Shape.DefaltTemplate.Star()).init({ svg: draw }).draw({ });
+        g.move(200,50);
     }else if(key==='Escape'){
         // g.cancelMoving();
     }
