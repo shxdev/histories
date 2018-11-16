@@ -83,8 +83,6 @@
                 let y = event.clientY;
                 let scroll_x = document.scrollingElement.scrollLeft;
                 let scroll_y = document.scrollingElement.scrollTop;
-                console.log(shape.md_x , shape.draw_x , x , shape.m_x , scroll_x , shape.s_x);
-                console.log(shape.md_x - shape.draw_x + x - shape.m_x + scroll_x - shape.s_x);
                 target.move(
                     shape.md_x - shape.draw_x + x - shape.m_x + scroll_x - shape.s_x
                     , shape.md_y - shape.draw_y + y - shape.m_y + scroll_y - shape.s_y
@@ -103,7 +101,6 @@
     InteractiveShape.prototype.cancelMoving = function(){
         if(this.md){
             this.md = false;
-            console.log(this.md_x - this.draw_x, this.md_y - this.draw_y);
             this.root.move(this.md_x - this.draw_x, this.md_y - this.draw_y);
         }
     };
