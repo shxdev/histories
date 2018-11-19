@@ -226,5 +226,13 @@ function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
         g.move(200, 50);
     }else if(key==='Escape'){
         // g.cancelMoving();
+    }else  if(key==="d"){
+        g.zMoveDown();
+    } else if (key === "u") {
+        g.zMoveUp();
+    } else if (key === "t") {
+        g.zMoveToTop();
+    } else if (key === "b") {
+        g.zMoveToBottom();
     }
 }

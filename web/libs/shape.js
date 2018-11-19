@@ -26,6 +26,7 @@
         }
     };
 
+    // 基本形状
     const BaseShape=function({svg}){
         this.components=[];
         this.keyComponents={};
@@ -48,8 +49,39 @@
         this.root.transform(o, relative);
         return this;
     }
-    
+    BaseShape.prototype.zMove = function (n) {
+        console.log(this.root.node);
+        if(n===Infinity){
+        }else if(n===-Infinity){
 
+        }else{
+            const n_int=parseInt(n);
+            if(n_int!==undefined){
+
+            }
+        }
+        return this;
+    }
+    BaseShape.prototype.zMoveDown = function () {
+        this.zMove(-1);
+        return this;
+    }
+    BaseShape.prototype.zMoveUp = function () {
+        this.zMove(1);
+        return this;
+    }
+    BaseShape.prototype.zMoveToTop = function () {
+        this.zMove(Infinity);
+        return this;
+    }
+    BaseShape.prototype.zMoveToBottom = function () {
+        this.zMove(-Infinity);
+        return this;
+    }
+    // 基本形状 - 结束
+
+
+    // 可交互形状
     const InteractiveShape = function ({ svg }){
         BaseShape.prototype.constructor.call(this,{svg});
         this.md_x = 0; 
@@ -115,10 +147,13 @@
             this.root.move(this.md_x - this.draw_x, this.md_y - this.draw_y);
         }
     };
+    // 可交互形状 - 结束
 
 
+    // 缺省模板
     const DefaltTemplate={};
 
+    // 缺省模板 - 矩形
     DefaltTemplate.Rectangle=function({svg}){
         InteractiveShape.prototype.constructor.call(this, { svg });
         this.w = 400;
@@ -139,7 +174,9 @@
         this.keyComponents["main"] = path;
         return this;
     };
+    // 缺省模板 - 矩形 - 结束
 
+    // 缺省模板 - 五角星
     DefaltTemplate.Star = function ({ svg }) {
         InteractiveShape.prototype.constructor.call(this, { svg });
         this.w = 400;
@@ -156,8 +193,6 @@
         const a_r=180-this.angle/2-36;
         const r=this.w/2;
         const r2=r / Math.sin(a_r / 180 * Math.PI) * Math.sin(this.angle / 2 / 180 * Math.PI);
-        // const r=1/2;
-        // const r2=r / Math.sin(a_r / 180 * Math.PI) * Math.sin(this.angle / 2 / 180 * Math.PI);
         const point_set=[];
         for(let angle_index=0;angle_index<5;angle_index++){
             let angle=-90+angle_index*72;
@@ -184,6 +219,8 @@
         this.keyComponents["main"] = p;
         return this;
     };
+    // 缺省模板 - 五角星 - 结束
+    // 缺省模板 - 结束
 
     return {BaseShape,InteractiveShape,DefaltTemplate};
 });
