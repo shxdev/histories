@@ -1,3 +1,4 @@
+"use strict"
 ;(function (name, definition) {
     // 检测上下文环境是否为AMD或CMD
     var hasDefine = typeof define === 'function',
@@ -12,7 +13,7 @@
       module.exports = definition();
     } else {
       // 将模块的执行结果挂在window变量中，在浏览器中this指向window对象
-      this[name] = definition();
+      (this||window)[name] = definition();
     }
   })('Shape', function () {
     const Tools={
@@ -25,24 +26,32 @@
         }
     };
 
-    const BaseShape=function(){
+    const BaseShape=function({svg}){
         this.components=[];
         this.keyComponents={};
         this.bgColor="hsl(222, 70%, 70%, 0.2)";
         this.lineColor="hsl(222, 100%, 0%)";
         this.lineWidth=1;
-    };
-    BaseShape.prototype.init = function ({svg}) {
+
         this.svg = svg;
         this.root = svg.group();
-        return this;
-    }
+    };
     BaseShape.prototype.move=function(x,y){
         this.root.move(x,y);
         return this;
     }
+    BaseShape.prototype.size = function (width, height) {
+        this.root.size(width, height);
+        return this;
+    }
+    BaseShape.prototype.transform = function (o, relative) {
+        this.root.transform(o, relative);
+        return this;
+    }
+    
 
-    const InteractiveShape=function(){
+    const InteractiveShape = function ({ svg }){
+        BaseShape.prototype.constructor.call(this,{svg});
         this.md_x = 0; 
         this.md_y = 0; 
         this.draw_x = 0; 
@@ -54,8 +63,15 @@
         this.s_y = 0; 
         this.moving_g = undefined;
 
+        this.root.node.shape = this;
+        this.root.on("pointerdown", this.eventHandler.pointerdown);
+        this.root.on("pointerup", this.eventHandler.pointerup);
+        this.root.on("pointermove", this.eventHandler.pointermove);
+
     };
-    InteractiveShape.prototype=new BaseShape();
+    InteractiveShape.prototype = Object.create(BaseShape.prototype);
+    InteractiveShape.prototype.constructor = InteractiveShape;
+
     InteractiveShape.prototype.eventHandler={
         "pointerdown":function(event){
             const target=this;
@@ -93,14 +109,6 @@
             }
         },
     }
-    InteractiveShape.prototype.init=function({svg}){
-        BaseShape.prototype.init.call(this,{svg});
-        this.root.node.shape=this;
-        this.root.on("pointerdown",this.eventHandler.pointerdown);
-        this.root.on("pointerup", this.eventHandler.pointerup);
-        this.root.on("pointermove", this.eventHandler.pointermove);
-        return this;
-    };
     InteractiveShape.prototype.cancelMoving = function(){
         if(this.md){
             this.md = false;
@@ -111,12 +119,15 @@
 
     const DefaltTemplate={};
 
-    DefaltTemplate.Rectangle=function(){
+    DefaltTemplate.Rectangle=function({svg}){
+        InteractiveShape.prototype.constructor.call(this, { svg });
         this.w = 400;
         this.h = 200;
         this.offset={x:1,y:1};
     };
-    DefaltTemplate.Rectangle.prototype=new InteractiveShape();
+    DefaltTemplate.Rectangle.prototype = Object.create(InteractiveShape.prototype);
+    DefaltTemplate.Rectangle.prototype.constructor = DefaltTemplate.Rectangle;
+
     DefaltTemplate.Rectangle.prototype.draw = function ({ x, y, w, h }) {
         this.x = Tools.isNumber(x) ? x : this.x;
         this.y = Tools.isNumber(y) ? y : this.y;
@@ -129,20 +140,24 @@
         return this;
     };
 
-    DefaltTemplate.Star = function () {
+    DefaltTemplate.Star = function ({ svg }) {
+        InteractiveShape.prototype.constructor.call(this, { svg });
         this.w = 400;
         this.angle = 36;
         this.offset = { x: 1, y: 1 };
     };
-    DefaltTemplate.Star.prototype = new InteractiveShape();
+    DefaltTemplate.Star.prototype = Object.create(InteractiveShape.prototype);
+    DefaltTemplate.Star.prototype.constructor = DefaltTemplate.Star;
+
     DefaltTemplate.Star.prototype.draw = function ({ w, angle}) {
 
         this.w = Tools.isNumber(w) ? w : this.w;
         this.angle = Tools.isNumber(angle) ? angle : this.angle;
-        console.log(Tools.isNumber(angle), angle, this.angle);
         const a_r=180-this.angle/2-36;
         const r=this.w/2;
         const r2=r / Math.sin(a_r / 180 * Math.PI) * Math.sin(this.angle / 2 / 180 * Math.PI);
+        // const r=1/2;
+        // const r2=r / Math.sin(a_r / 180 * Math.PI) * Math.sin(this.angle / 2 / 180 * Math.PI);
         const point_set=[];
         for(let angle_index=0;angle_index<5;angle_index++){
             let angle=-90+angle_index*72;
@@ -162,8 +177,9 @@
             const point = point_set[i];
             polygon = `${polygon} ${point.x},${point.y}`;
         }
-        const p = this.svg.polygon(polygon).attr({ fill: this.bgColor, stroke: this.lineColor, 'stroke-width': this.lineWidth }).addTo(this.root);
+        const p = this.svg.polygon(polygon).attr({ width:"100%",height:"100%",fill: this.bgColor, stroke: this.lineColor, 'stroke-width': this.lineWidth }).addTo(this.root);
         this.root.move(this.offset.x, this.offset.y);
+        this.root.size(this.w,this.w);
         this.components.push(p);
         this.keyComponents["main"] = p;
         return this;

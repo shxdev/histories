@@ -209,7 +209,8 @@ document.addEventListener('DOMContentLoaded',(event)=>{
     (async ()=>{
         records=await dao.getRecords();
         draw = SVG('drawing').id('历史');
-        paint(draw, lanes_class, records);
+        draw.size(10000,10000);
+        // paint(draw, lanes_class, records);
 
     })();
 });
@@ -217,9 +218,12 @@ document.addEventListener('DOMContentLoaded',(event)=>{
 let g=undefined;
 function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
     // console.log({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
-    if(key==='a'){
-        g = (new Shape.DefaltTemplate.Star()).init({ svg: draw }).draw({ });
+    if(key==='s'){
+        g = (new Shape.DefaltTemplate.Star({ svg: draw })).draw({ });
         g.move(200,50);
+    } else if (key === 'r') {
+        g = (new Shape.DefaltTemplate.Rectangle({ svg: draw })).draw({});
+        g.move(200, 50);
     }else if(key==='Escape'){
         // g.cancelMoving();
     }
