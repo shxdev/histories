@@ -182,6 +182,7 @@ function paint(draw, lanes_class, records){
     draw.size(right + 20, bottom + 20);
 }
 var draw=undefined;
+var shapeContainer=undefined;
 var records = [];
 var lanes_class = ['中国','西方'];
 
@@ -209,20 +210,19 @@ document.addEventListener('DOMContentLoaded',(event)=>{
     (async ()=>{
         records=await dao.getRecords();
         draw = SVG('drawing').id('历史');
+        shapeContainer=new Shape.Container({svg:draw});
         draw.size(10000,10000);
         // paint(draw, lanes_class, records);
-
     })();
 });
-
 let g=undefined;
 function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
     // console.log({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
     if(key==='s'){
-        g = (new Shape.DefaltTemplate.Star({ svg: draw })).draw({ });
+        const g=shapeContainer.create(Shape.DefaltTemplate.Star).draw({ });
         g.move(200,50);
     } else if (key === 'r') {
-        g = (new Shape.DefaltTemplate.Rectangle({ svg: draw })).draw({});
+        g = shapeContainer.create(Shape.DefaltTemplate.Rectangle).draw({ });
         g.move(200, 50);
     }else if(key==='Escape'){
         // g.cancelMoving();

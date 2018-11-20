@@ -25,17 +25,37 @@
             return ret;
         }
     };
+    const Container=function({svg}){
+        this.svg=svg;
+        if(this.svg===undefined){
+            this.svg=SVG('drawing')
+        }else if(typeof(this.svg)==="string"){
+            this.svg=SVG(this.svg);
+        }
+    };
+    Container.prototype.create=function(shapeClass,parameters){
+        const ret=Object.create(shapeClass.prototype);
+        parameters=parameters||{};
+        parameters["container"]=this;
+        return new shapeClass(parameters);
+        // shapeClass.prototype.constructor.call(ret,parameters);
+        // return ret;
+    };
 
     // 基本形状
-    const BaseShape=function({svg}){
+    const BaseShape=function({container,svg}){
         this.components=[];
         this.keyComponents={};
         this.bgColor="hsl(222, 70%, 70%, 0.2)";
         this.lineColor="hsl(222, 100%, 0%)";
         this.lineWidth=1;
 
-        this.svg = svg;
-        this.root = svg.group();
+        this.container=container;
+        this.svg = this.container && this.container.svg||svg;
+        if(this.svg===undefined){
+            throw new Error("need svg container object. please use parameter {container,svg}");
+        }
+        this.root = this.svg.group();
     };
     BaseShape.prototype.move=function(x,y){
         this.root.move(x,y);
@@ -82,8 +102,8 @@
 
 
     // 可交互形状
-    const InteractiveShape = function ({ svg }){
-        BaseShape.prototype.constructor.call(this,{svg});
+    const InteractiveShape = function ({container,svg }){
+        BaseShape.prototype.constructor.call(this,arguments[0]);
         this.md_x = 0; 
         this.md_y = 0; 
         this.draw_x = 0; 
@@ -154,8 +174,8 @@
     const DefaltTemplate={};
 
     // 缺省模板 - 矩形
-    DefaltTemplate.Rectangle=function({svg}){
-        InteractiveShape.prototype.constructor.call(this, { svg });
+    DefaltTemplate.Rectangle=function({container,svg}){
+        InteractiveShape.prototype.constructor.call(this, arguments[0]);
         this.w = 400;
         this.h = 200;
         this.offset={x:1,y:1};
@@ -177,8 +197,8 @@
     // 缺省模板 - 矩形 - 结束
 
     // 缺省模板 - 五角星
-    DefaltTemplate.Star = function ({ svg }) {
-        InteractiveShape.prototype.constructor.call(this, { svg });
+    DefaltTemplate.Star = function ({container, svg }) {
+        InteractiveShape.prototype.constructor.call(this,arguments[0]);
         this.w = 400;
         this.angle = 36;
         this.offset = { x: 1, y: 1 };
@@ -222,5 +242,5 @@
     // 缺省模板 - 五角星 - 结束
     // 缺省模板 - 结束
 
-    return {BaseShape,InteractiveShape,DefaltTemplate};
+    return {Container,BaseShape,InteractiveShape,DefaltTemplate};
 });
