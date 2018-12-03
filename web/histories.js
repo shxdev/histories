@@ -219,13 +219,13 @@ let g=undefined;
 function shortcutKey({key,keyCode,shiftKey,ctrlKey,altKey,metaKey}){
     // console.log({key,keyCode,shiftKey,ctrlKey,altKey,metaKey});
     if(key==='s'){
-        const g=shapeContainer.create(Shape.DefaltTemplate.Star).draw({ });
+        g=shapeContainer.create(Shape.DefaltTemplate.Star).draw({ });
         g.move(200,50);
     } else if (key === 'r') {
         g = shapeContainer.create(Shape.DefaltTemplate.Rectangle).draw({ });
         g.move(200, 50);
     }else if(key==='Escape'){
-        // g.cancelMoving();
+        g.cancelMoving();
     }else  if(key==="d"){
         g.zMoveDown();
     } else if (key === "u") {
